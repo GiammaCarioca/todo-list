@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './Todo.css';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 export default class Todo extends Component {
 	constructor(props) {
@@ -12,6 +13,7 @@ export default class Todo extends Component {
 		this.toggleForm = this.toggleForm.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 		this.handleUpdate = this.handleUpdate.bind(this);
+		this.handleToggle = this.handleToggle.bind(this);
 	}
 
 	handleRemove() {
@@ -28,31 +30,45 @@ export default class Todo extends Component {
 		this.setState({ isEditing: false });
 	}
 
-	handleChange = e => {
+	handleChange(e) {
 		this.setState({ task: e.target.value });
-	};
+	}
+
+	handleToggle(e) {
+		this.props.toggleTodo(this.props.id);
+	}
 
 	render() {
 		let result;
-		result = (
-			<div>
-				<form onSubmit={this.handleUpdate}>
-					<input type="text" value={this.state.task} name="task" onChange={this.handleChange} />
-					<button>SAVE</button>
-				</form>
-			</div>
-		);
+		this.state.isEditing
+			? (result = (
+					<CSSTransition key="editing" timeout={500} classNames="form">
+						<form className="Todo-edit-form" onSubmit={this.handleUpdate}>
+							<input type="text" value={this.state.task} name="task" onChange={this.handleChange} />
+							<button>Save</button>
+						</form>
+					</CSSTransition>
+				))
+			: (result = (
+					<CSSTransition key="normal" timeout={500} classNames="task-text">
+						<li className="Todo-task" onClick={this.handleToggle}>
+							{this.props.task}
+						</li>
+					</CSSTransition>
+				));
 
-		return this.state.isEditing ? (
-			result
-		) : (
-			<div className="Todo">
-				<li className="Todo-task">{this.props.task}</li>
-				<button className="Todo-edit-form" onClick={this.toggleForm}>
-					EDIT
-				</button>
-				<button onClick={this.handleRemove}>DELETE</button>
-			</div>
+		return (
+			<TransitionGroup className={this.props.completed ? 'Todo completed' : 'Todo'}>
+				{result}
+				<div className="Todo-buttons">
+					<button onClick={this.toggleForm}>
+						<i class="fas fa-pen" />
+					</button>
+					<button onClick={this.handleRemove}>
+						<i class="fas fa-trash" />
+					</button>
+				</div>
+			</TransitionGroup>
 		);
 	}
 }
