@@ -11,21 +11,25 @@ export default class TodoList extends Component {
 		};
 		this.create = this.create.bind(this);
 		this.remove = this.remove.bind(this);
-	}
-
-	remove(id) {
-		this.setState({ todos: this.state.todos.filter(todo => todo.id !== id) });
+		this.update = this.update.bind(this);
 	}
 
 	create(newTodo) {
 		this.setState({ todos: [...this.state.todos, newTodo] });
 	}
 
+	remove(id) {
+		this.setState({ todos: this.state.todos.filter(todo => todo.id !== id) });
+	}
+
+	update(id, updatedTask) {
+		const updatedTodos = this.state.todos.map(todo => (todo.id === id ? { ...todo, task: updatedTask } : todo));
+		this.setState({ todos: updatedTodos });
+	}
+
 	render() {
 		const todos = this.state.todos.map(todo => (
-			<Todo key={todo.id} id={todo.id} removeTodo={this.remove}>
-				{todo.task}
-			</Todo>
+			<Todo key={todo.id} id={todo.id} task={todo.task} updateTodo={this.update} removeTodo={this.remove} />
 		));
 
 		return (
